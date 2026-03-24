@@ -123,7 +123,7 @@ def insert_user(cursor, conn):
     try:
         cursor.execute(
             "INSERT INTO users (username, email, password_hash) VALUES (?, ?, ?)", 
-            (username, email, password) # Note: In production, store a hash, not plain text!
+            (username, email, password)
         )
         conn.commit()
         print(f"User '{username}' added successfully!")
@@ -133,11 +133,26 @@ def insert_user(cursor, conn):
     except Exception as e:
         print(f"An error occurred: {e}")
 
+
+def aff_b(cursor):
+    email=input("give email")
+    cursor.execute("SELECT balance ,currency FROM wallets LEFT JOIN users ON wallets.user_id = users.user_id and email=?",(email,))
+    storage=cursor.fetchall()
+    for j in storage:
+        print(f"you have {j[0]} {j[1]} in your email related wallet")
+    
+    
+def aff_u(cursor):
+    email=input("give email")
+    cursor.execute("select * from users where email=?",(email,))
+    data=cursor.fetchall()
+    for i in data:
+        print(f"user name : {i[1]} || email : {i[2]} || user_first_login : {i[4]}")
 def main():
     conn, cursor = initialize_database()
     
     while True:
-        action = input("\nChoose action: register / add money / exit: ").lower().strip()
+        action = input("\nChoose action: register / add money / exit: / show ").lower().strip()
         
         if action == "register":
             insert_user(cursor, conn)
@@ -148,9 +163,15 @@ def main():
         elif action == "exit":
             print("Goodbye!")
             break
+        elif action == "show":
+            type=input ("type of info you wanna see balance / user_login_info")
+            if type=="balance":
+                aff_b(cursor)
+            elif type=="user_login_info":
+                aff_u(cursor)
         else:
             print("Unknown command. Try 'register', 'add money', or 'exit'.")
-
+        
     conn.close()
 
 if __name__ == "__main__":
